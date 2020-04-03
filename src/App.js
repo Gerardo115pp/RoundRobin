@@ -97,7 +97,7 @@ function App() {
     progress_element.innerText = `  Progreso: ${(data.progress/data.total*100).toFixed(1)}%`;
   }
 
-  const HandelStartClick = () => {
+  const HandelStartClick = (stop=true) => {
     const new_state = cpu_state === cpu_states.FREE ? cpu_states.BUSY : cpu_states.FREE;
     
     if(procsessing_queue.current.length !== 0)
@@ -110,7 +110,7 @@ function App() {
     {
       component_data.current.start_processing_time = Date.now();
     }
-    else{
+    else if(stop) {
       stopped.current = true;
     }
     useCpuState(new_state);
@@ -139,7 +139,9 @@ function App() {
     let current_process = dequeueProcessSafly(procsessing_queue.current);
     if (current_process === false)
     {
-      return;
+      procsessing_queue.current.clear();
+      componentDidMount.current = false;
+      return HandelStartClick(false);
     }
     current_process.status = processing_states.PROCESSING;
     let elapsed_counts = 0;
