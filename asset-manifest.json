@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/RoundRobin/static/css/main.cf6c2552.chunk.css",
+    "main.js": "/RoundRobin/static/js/main.5877ffc9.chunk.js",
+    "main.js.map": "/RoundRobin/static/js/main.5877ffc9.chunk.js.map",
+    "runtime-main.js": "/RoundRobin/static/js/runtime-main.918da480.js",
+    "runtime-main.js.map": "/RoundRobin/static/js/runtime-main.918da480.js.map",
+    "static/js/2.f2922cb5.chunk.js": "/RoundRobin/static/js/2.f2922cb5.chunk.js",
+    "static/js/2.f2922cb5.chunk.js.map": "/RoundRobin/static/js/2.f2922cb5.chunk.js.map",
+    "index.html": "/RoundRobin/index.html",
+    "precache-manifest.96ba5dcbe98fb3d31312872953d679f9.js": "/RoundRobin/precache-manifest.96ba5dcbe98fb3d31312872953d679f9.js",
+    "service-worker.js": "/RoundRobin/service-worker.js",
+    "static/css/main.cf6c2552.chunk.css.map": "/RoundRobin/static/css/main.cf6c2552.chunk.css.map",
+    "static/js/2.f2922cb5.chunk.js.LICENSE.txt": "/RoundRobin/static/js/2.f2922cb5.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.918da480.js",
+    "static/js/2.f2922cb5.chunk.js",
+    "static/css/main.cf6c2552.chunk.css",
+    "static/js/main.5877ffc9.chunk.js"
+  ]
+}
