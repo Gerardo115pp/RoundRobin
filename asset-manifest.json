@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/RoundRobin/static/css/main.cf6c2552.chunk.css",
-    "main.js": "/RoundRobin/static/js/main.ee562f4d.chunk.js",
-    "main.js.map": "/RoundRobin/static/js/main.ee562f4d.chunk.js.map",
+    "main.css": "/RoundRobin/static/css/main.0429f6b3.chunk.css",
+    "main.js": "/RoundRobin/static/js/main.eab7eb25.chunk.js",
+    "main.js.map": "/RoundRobin/static/js/main.eab7eb25.chunk.js.map",
     "runtime-main.js": "/RoundRobin/static/js/runtime-main.918da480.js",
     "runtime-main.js.map": "/RoundRobin/static/js/runtime-main.918da480.js.map",
-    "static/js/2.f2922cb5.chunk.js": "/RoundRobin/static/js/2.f2922cb5.chunk.js",
-    "static/js/2.f2922cb5.chunk.js.map": "/RoundRobin/static/js/2.f2922cb5.chunk.js.map",
+    "static/js/2.a2285efa.chunk.js": "/RoundRobin/static/js/2.a2285efa.chunk.js",
+    "static/js/2.a2285efa.chunk.js.map": "/RoundRobin/static/js/2.a2285efa.chunk.js.map",
     "index.html": "/RoundRobin/index.html",
-    "precache-manifest.4f651ec9887dbb4dd168a21cb0b38162.js": "/RoundRobin/precache-manifest.4f651ec9887dbb4dd168a21cb0b38162.js",
+    "precache-manifest.0346eb705b4a626c4851b3f5a56b8ad7.js": "/RoundRobin/precache-manifest.0346eb705b4a626c4851b3f5a56b8ad7.js",
     "service-worker.js": "/RoundRobin/service-worker.js",
-    "static/css/main.cf6c2552.chunk.css.map": "/RoundRobin/static/css/main.cf6c2552.chunk.css.map",
-    "static/js/2.f2922cb5.chunk.js.LICENSE.txt": "/RoundRobin/static/js/2.f2922cb5.chunk.js.LICENSE.txt"
+    "static/css/main.0429f6b3.chunk.css.map": "/RoundRobin/static/css/main.0429f6b3.chunk.css.map",
+    "static/js/2.a2285efa.chunk.js.LICENSE.txt": "/RoundRobin/static/js/2.a2285efa.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.918da480.js",
-    "static/js/2.f2922cb5.chunk.js",
-    "static/css/main.cf6c2552.chunk.css",
-    "static/js/main.ee562f4d.chunk.js"
+    "static/js/2.a2285efa.chunk.js",
+    "static/css/main.0429f6b3.chunk.css",
+    "static/js/main.eab7eb25.chunk.js"
   ]
 }
