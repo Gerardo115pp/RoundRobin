@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Process from './clases/Process';
 import CircularQueue from './clases/Queue';
-import { colors, processing_states, cpu_states } from './enums';
+import { colors, processing_states, cpu_states, schualding_algorithms } from './enums';
 import './App.css';
 
 function App() {
@@ -16,6 +16,7 @@ function App() {
   // waiter.current.onmessage()
   const procsessing_queue = useRef(new CircularQueue());
   const general_quantum = 20; //this number represents seconds
+  const scheduling_algorithm = useRef(schualding_algorithms.ROUND_ROBIN);
   const [ cpu_state, useCpuState ] = useState(cpu_states.FREE);
 
   
@@ -41,7 +42,7 @@ function App() {
     }
     if(cpu_state === cpu_states.BUSY)
     {
-      startRoundRobin();
+      getCurrentAlgorithm()();
     }
   })
 
@@ -59,8 +60,6 @@ function App() {
         return colors.MAIN_COLOR;
     }
   }
-
-
 
   const getRangedRandom = constant => {
     return Math.ceil(Math.random()*constant);
@@ -97,6 +96,90 @@ function App() {
     progress_element.innerText = `  Progreso: ${(data.progress/data.total*100).toFixed(1)}%`;
   }
 
+  const startShortestFirst = async () => {
+    const { current:p_list } = processes_list;
+    if(stopped.current)
+    {
+      stopped.current = false;
+      return;
+    }
+    if(procsessing_queue.current.length < p_list.length)
+    {
+      // Adds new process to the processing queue
+
+      let processes_to_add = getRangedRandom(2);
+
+      while(processes_to_add > 0 && procsessing_queue.current.length !== p_list.length)
+      {
+        p_list[procsessing_queue.current.length].status = processing_states.ADDED;
+        procsessing_queue.current.enqueue(p_list[procsessing_queue.current.length]);
+        processes_to_add--;
+      }
+    }
+    let current_process = dequeueProcessSafly(procsessing_queue.current);
+    if (current_process === false)
+    {
+      procsessing_queue.current.clear();
+      componentDidMount.current = false;
+      return HandelStartClick(false);
+    }
+    current_process.status = processing_states.PROCESSING;
+    while(current_process.status !== processing_states.FINISHED)
+    {
+      updateInformation({
+        total: current_process.speed,
+        progress: current_process.progress,
+        process_name: current_process.name
+
+      })
+      current_process.updateProgress();
+      drawProcesses();
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    current_process.status = current_process.status !== processing_states.FINISHED ? processing_states.ADDED : current_process.status;
+    return startShortestFirst();
+  }
+
+  const getCurrentAlgorithm = () => {
+    const { current:algorithm_code } = scheduling_algorithm;
+    let func;
+    switch(algorithm_code)
+    {
+      case schualding_algorithms.ROUND_ROBIN:
+        func = startRoundRobin;
+        break;
+      case schualding_algorithms.SHORTEST_FIRST:
+        func = startShortestFirst;
+        break;
+      default:
+        func = () => alert("puto el que lo lea");
+        break;
+    } 
+    return func;
+  }
+
+  const handelAlgorithmOptionClick = e => {
+    const element = e.target;
+    const algorithm_code = parseInt(element.getAttribute('algorithmvalue'));
+    const current_algorithm = scheduling_algorithm.current;
+    let new_title = "";
+    scheduling_algorithm.current = algorithm_code;
+    switch(algorithm_code)
+    {
+      case schualding_algorithms.ROUND_ROBIN:
+        new_title = "ACTIVIDAD 2 ROUND ROBIN";
+        break;
+      case schualding_algorithms.SHORTEST_FIRST:
+        new_title = "ACTIVIDAD 3 SHORTEST FIRST";
+        break;
+      default:
+        new_title = "TAREA RANDOM";
+        scheduling_algorithm.current = current_algorithm;
+        break;
+    }
+    document.querySelector("#title h3").innerText = new_title;
+  }
+
   const HandelStartClick = (stop=true) => {
     const new_state = cpu_state === cpu_states.FREE ? cpu_states.BUSY : cpu_states.FREE;
     
@@ -104,6 +187,10 @@ function App() {
     {
       procsessing_queue.current.clear();
       componentDidMount.current = false;
+    }
+    if(scheduling_algorithm.current === schualding_algorithms.SHORTEST_FIRST)
+    {
+      processes_list.current.sort((a,b) =>  a.speed - b.speed);
     }
 
     if(new_state === cpu_states.BUSY)
@@ -205,6 +292,13 @@ function App() {
             <span id="quantum-il" className="infoblock-label">Quantum: {general_quantum}</span>
             <span id="proceso-il" className="infoblock-label">Proceso:</span>
             <span id="progress-il" className="infoblock-label">Progreso:</span>
+          </div>
+        </div>
+        <div className="infoblock" id="algorithms-selector">
+          <span className="infoblock-title">Algoritmos</span>
+          <div className="infoblock-labels">
+            <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.ROUND_ROBIN} className="infoblock-label algorithm-option">round robin</div>
+            <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_FIRST} className="infoblock-label algorithm-option">shortest first</div>
           </div>
         </div>
       </div>

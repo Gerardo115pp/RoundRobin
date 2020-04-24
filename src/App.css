@@ -120,3 +120,21 @@ h1, h2, h3, h4, h5, h6{
 }
 
 
+/*=============================================
+=            Algoritmos            =
+=============================================*/
+
+.algorithm-option{
+  cursor: pointer;
+  transition: all .3s ease-in-out;
+}
+
+.algorithm-option:hover{
+  color: var(--rose);
+}
+
+
+
+
+
+

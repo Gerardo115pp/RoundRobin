@@ -8,6 +8,11 @@ export const colors = {
     GREEN: "#4bd84b"
 }
 
+export const schualding_algorithms = {
+    ROUND_ROBIN: 0,
+    SHORTEST_FIRST: 1
+}
+
 export const processing_states = {
     CREATED: 0,
     ADDED: 1,
