@@ -16,7 +16,7 @@ function App() {
   // waiter.current.onmessage()
   const procsessing_queue = useRef(new CircularQueue());
   const general_quantum = 20; //this number represents seconds
-  const scheduling_algorithm = useRef(schualding_algorithms.ROUND_ROBIN);
+  const scheduling_algorithm = useRef(schualding_algorithms.SHORTEST_FIRST);
   const [ cpu_state, useCpuState ] = useState(cpu_states.FREE);
 
   
@@ -96,6 +96,23 @@ function App() {
     progress_element.innerText = `  Progreso: ${(data.progress/data.total*100).toFixed(1)}%`;
   }
 
+  const getAssigneTitle = algorithm_code => {
+    let new_title = "";
+    switch(algorithm_code)
+    {
+      case schualding_algorithms.ROUND_ROBIN:
+        new_title = "ACTIVIDAD 2 ROUND ROBIN";
+        break;
+      case schualding_algorithms.SHORTEST_FIRST:
+        new_title = "ACTIVIDAD 3 SHORTEST FIRST";
+        break;
+      default:
+        new_title = "TAREA RANDOM";
+        break;
+    }
+    return new_title;
+  }
+
   const startShortestFirst = async () => {
     const { current:p_list } = processes_list;
     if(stopped.current)
@@ -161,23 +178,8 @@ function App() {
   const handelAlgorithmOptionClick = e => {
     const element = e.target;
     const algorithm_code = parseInt(element.getAttribute('algorithmvalue'));
-    const current_algorithm = scheduling_algorithm.current;
-    let new_title = "";
     scheduling_algorithm.current = algorithm_code;
-    switch(algorithm_code)
-    {
-      case schualding_algorithms.ROUND_ROBIN:
-        new_title = "ACTIVIDAD 2 ROUND ROBIN";
-        break;
-      case schualding_algorithms.SHORTEST_FIRST:
-        new_title = "ACTIVIDAD 3 SHORTEST FIRST";
-        break;
-      default:
-        new_title = "TAREA RANDOM";
-        scheduling_algorithm.current = current_algorithm;
-        break;
-    }
-    document.querySelector("#title h3").innerText = new_title;
+    document.querySelector("#title h3").innerText = getAssigneTitle(algorithm_code);
   }
 
   const HandelStartClick = (stop=true) => {
@@ -277,7 +279,7 @@ function App() {
   return (
     <div id="main-container">
       <div onMouseEnter={handleTitleHover} onMouseLeave={handleTitleHover} id="title">
-        <h3>ACTIVIDAD 2 ROUND ROBIN</h3>
+        <h3>{getAssigneTitle(scheduling_algorithm.current)}</h3>
         <span id="subtitule">por: <br/>&emsp;-&ensp;Gerardo Rodriguez Sanchez<br/><br/>&emsp;-&ensp;Luis Antonio Jimenez Mendoza<br/><br/>&emsp;-&ensp;Luis Elogio (aka el foris)</span>
       </div>
       <div id="graphic-container">
