@@ -10,7 +10,8 @@ export const colors = {
 
 export const schualding_algorithms = {
     ROUND_ROBIN: 0,
-    SHORTEST_FIRST: 1
+    SHORTEST_FIRST: 1,
+    SHORTEST_REMAING_FIRST: 2
 }
 
 export const processing_states = {

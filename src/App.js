@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Process from './clases/Process';
 import CircularQueue from './clases/Queue';
+import PQueue from './clases/PriorityQueue';
 import { colors, processing_states, cpu_states, schualding_algorithms } from './enums';
 import './App.css';
 
@@ -15,8 +16,9 @@ function App() {
   // const waiter = useRef(new Worker('./workers/waiter.js'));
   // waiter.current.onmessage()
   const procsessing_queue = useRef(new CircularQueue());
+  const procsessing_pqueue = useRef(new PQueue());
   const general_quantum = 20; //this number represents seconds
-  const scheduling_algorithm = useRef(schualding_algorithms.SHORTEST_FIRST);
+  const scheduling_algorithm = useRef(schualding_algorithms.SHORTEST_REMAING_FIRST);
   const [ cpu_state, useCpuState ] = useState(cpu_states.FREE);
 
   
@@ -106,6 +108,9 @@ function App() {
       case schualding_algorithms.SHORTEST_FIRST:
         new_title = "ACTIVIDAD 3 SHORTEST FIRST";
         break;
+      case schualding_algorithms.SHORTEST_REMAING_FIRST:
+        new_title = "ACTIVIDAD 4 SHORTEST REMAING FIRST";
+        break;
       default:
         new_title = "TAREA RANDOM";
         break;
@@ -157,6 +162,60 @@ function App() {
     return startShortestFirst();
   }
 
+  const startShortestRemaingFirst = async (processes_added=0) => {
+    const { current:p_list } = processes_list;
+
+    if(stopped.current)
+    {
+      stopped.current = false;
+
+      return;
+    }
+
+    if(procsessing_pqueue.current.length < p_list.length)
+    {
+      // Adds new process to the processing queue
+
+      let processes_to_add = getRangedRandom(2);
+
+      while(processes_to_add > 0 && processes_added !== p_list.length)
+      {
+        p_list[processes_added].status = processing_states.ADDED;
+        procsessing_pqueue.current.enqueue(p_list[processes_added], p_list[processes_added].speed - p_list[processes_added].progress);
+        processes_to_add--;
+        processes_added++;
+      }
+    }
+    if (procsessing_pqueue.current._length === 0)
+    {
+      componentDidMount.current = false;
+      return HandelStartClick(false);
+    }
+    let current_process = procsessing_pqueue.current.dequeue().content;
+    current_process.status = processing_states.PROCESSING;
+    let cicles_elapsed = 15;
+    while(cicles_elapsed > 0 && current_process.status !== processing_states.FINISHED)
+    {
+      updateInformation({
+        total: current_process.speed,
+        progress: current_process.progress,
+        process_name: current_process.name
+
+      })
+      current_process.updateProgress();
+      drawProcesses();
+      cicles_elapsed--;
+      console.log(cicles_elapsed);
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    if (current_process.status !== processing_states.FINISHED)
+    {
+      current_process.status = processing_states.ADDED;
+      procsessing_pqueue.current.enqueue(current_process, current_process.speed - current_process.progress)
+    }
+    return startShortestRemaingFirst(processes_added);
+  }
+
   const getCurrentAlgorithm = () => {
     const { current:algorithm_code } = scheduling_algorithm;
     let func;
@@ -167,6 +226,9 @@ function App() {
         break;
       case schualding_algorithms.SHORTEST_FIRST:
         func = startShortestFirst;
+        break;
+      case schualding_algorithms.SHORTEST_REMAING_FIRST:
+        func = startShortestRemaingFirst;
         break;
       default:
         func = () => alert("puto el que lo lea");
@@ -184,7 +246,7 @@ function App() {
 
   const HandelStartClick = (stop=true) => {
     const new_state = cpu_state === cpu_states.FREE ? cpu_states.BUSY : cpu_states.FREE;
-    
+    procsessing_pqueue.current.clear();
     if(procsessing_queue.current.length !== 0)
     {
       procsessing_queue.current.clear();
@@ -301,6 +363,7 @@ function App() {
           <div className="infoblock-labels">
             <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.ROUND_ROBIN} className="infoblock-label algorithm-option">round robin</div>
             <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_FIRST} className="infoblock-label algorithm-option">shortest first</div>
+            <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_REMAING_FIRST} className="infoblock-label algorithm-option">shortest remaing first</div>
           </div>
         </div>
       </div>
