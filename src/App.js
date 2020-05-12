@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import Process from './clases/Process';
 import CircularQueue from './clases/Queue';
 import PQueue from './clases/PriorityQueue';
+import MLQueue from './clases/MultiLevelQueue';
 import { colors, processing_states, cpu_states, schualding_algorithms } from './enums';
 import './App.css';
 
@@ -17,8 +18,10 @@ function App() {
   // waiter.current.onmessage()
   const procsessing_queue = useRef(new CircularQueue());
   const procsessing_pqueue = useRef(new PQueue());
+  const multi_level_queue = useRef(new MLQueue([{name: 'high', color: colors.HIGH}, {name: 'mid', color: colors.MID}, {name: 'low', color: colors.LOW}]));
+  const [ fcount, useFcount ] = useState(0);
   const general_quantum = 20; //this number represents seconds
-  const scheduling_algorithm = useRef(schualding_algorithms.SHORTEST_REMAING_FIRST);
+  const scheduling_algorithm = useRef(schualding_algorithms.MULTI_LEVEL_QUEUE);
   const [ cpu_state, useCpuState ] = useState(cpu_states.FREE);
 
   
@@ -110,6 +113,9 @@ function App() {
         break;
       case schualding_algorithms.SHORTEST_REMAING_FIRST:
         new_title = "ACTIVIDAD 4 SHORTEST REMAING FIRST";
+        break;
+      case schualding_algorithms.MULTI_LEVEL_QUEUE:
+        new_title = "ACTIVIDAD 5 MULTI LEVEL QUEUE";
         break;
       default:
         new_title = "TAREA RANDOM";
@@ -216,6 +222,63 @@ function App() {
     return startShortestRemaingFirst(processes_added);
   }
 
+  const startMultiLevelQueue = async (processes_added=0) => {
+    const { current:p_list } = processes_list;
+
+    if(stopped.current)
+    {
+      stopped.current = false;
+
+      return;
+    }
+
+    if(multi_level_queue.current.length < p_list.length)
+    {
+      // Adds new process to the processing queue
+
+      let processes_to_add = getRangedRandom(2);
+
+      while(processes_to_add > 0 && processes_added !== p_list.length)
+      {
+        p_list[processes_added].status = processing_states.ADDED;
+        multi_level_queue.current.enqueue(p_list[processes_added], p_list[processes_added].speed - p_list[processes_added].progress);
+        processes_to_add--;
+        processes_added++;
+      }
+    }
+    if (multi_level_queue.current.length === 0)
+    {
+      componentDidMount.current = false;
+      return HandelStartClick(false);
+    }
+    let current_process_info = multi_level_queue.current.dequeue();
+    const current_process = current_process_info.value,
+          process_label = current_process_info.label;
+    current_process.status = processing_states.PROCESSING;
+    let cicles_elapsed = 15;
+    while(cicles_elapsed > 0 && current_process.status !== processing_states.FINISHED)
+    {
+      updateInformation({
+        total: current_process.speed,
+        progress: current_process.progress,
+        process_name: current_process.name
+
+      })
+      current_process.updateProgress();
+      drawProcesses(undefined, multi_level_queue.current.levels[process_label].color);
+      cicles_elapsed--;
+      console.log(cicles_elapsed);
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    if (current_process.status !== processing_states.FINISHED)
+    {
+      current_process.status = processing_states.ADDED;
+      multi_level_queue.current.enqueue(current_process, current_process.speed - current_process.progress, process_label)
+    }
+    return startMultiLevelQueue(processes_added);
+  }
+
+
   const getCurrentAlgorithm = () => {
     const { current:algorithm_code } = scheduling_algorithm;
     let func;
@@ -230,6 +293,9 @@ function App() {
       case schualding_algorithms.SHORTEST_REMAING_FIRST:
         func = startShortestRemaingFirst;
         break;
+      case schualding_algorithms.MULTI_LEVEL_QUEUE:
+        func = startMultiLevelQueue;
+        break;
       default:
         func = () => alert("puto el que lo lea");
         break;
@@ -237,11 +303,12 @@ function App() {
     return func;
   }
 
-  const handelAlgorithmOptionClick = e => {
+  const HandelAlgorithmOptionClick = e => {
     const element = e.target;
     const algorithm_code = parseInt(element.getAttribute('algorithmvalue'));
     scheduling_algorithm.current = algorithm_code;
     document.querySelector("#title h3").innerText = getAssigneTitle(algorithm_code);
+    useFcount(fcount+1)
   }
 
   const HandelStartClick = (stop=true) => {
@@ -316,11 +383,12 @@ function App() {
     return startRoundRobin();
   }
 
-  const drawProcesses = canvas => {
+  const drawProcesses = ( canvas, active_color) => {
+    active_color = undefined === active_color ? colors.ROSE : active_color;
     canvas = canvas === undefined ? document.getElementById("graphic") : canvas;
     const canvas_context = canvas.getContext('2d');
     processes_list.current.forEach(p => {
-      canvas_context.strokeStyle = getProcessColor(p);
+      canvas_context.strokeStyle = p.status !== processing_states.PROCESSING ?  getProcessColor(p) : active_color;
       canvas_context.beginPath();
       canvas_context.rect(p.coords.X, (p.coords.Y - p.speed), 30, p.speed);
       canvas_context.stroke();
@@ -337,6 +405,17 @@ function App() {
     subtitule.style.display = isMouseOverTitle.current ? "none" : "block";
     isMouseOverTitle.current = !isMouseOverTitle.current 
   }
+
+  const getColorInfo = () =>  scheduling_algorithm.current !== schualding_algorithms.MULTI_LEVEL_QUEUE ? undefined : (
+    <div className="infoblock">
+      <span className="infoblock-title">Color Legend</span>
+      <div className="infoblock-labels">
+        <span style={{color:colors.HIGH}} id='high-priority' className="infoblock-label">High priority</span>
+        <span style={{color:colors.MID}} id='mid-priority' className="infoblock-label">Mid priority</span>
+        <span style={{color:colors.LOW}} id='low-priority' className="infoblock-label">Low priority</span>
+      </div>
+    </div>
+  ) 
 
   return (
     <div id="main-container">
@@ -361,11 +440,13 @@ function App() {
         <div className="infoblock" id="algorithms-selector">
           <span className="infoblock-title">Algoritmos</span>
           <div className="infoblock-labels">
-            <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.ROUND_ROBIN} className="infoblock-label algorithm-option">round robin</div>
-            <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_FIRST} className="infoblock-label algorithm-option">shortest first</div>
-            <div onClick={handelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_REMAING_FIRST} className="infoblock-label algorithm-option">shortest remaing first</div>
+            <div onClick={HandelAlgorithmOptionClick} algorithmValue={schualding_algorithms.ROUND_ROBIN} className="infoblock-label algorithm-option">round robin</div>
+            <div onClick={HandelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_FIRST} className="infoblock-label algorithm-option">shortest first</div>
+            <div onClick={HandelAlgorithmOptionClick} algorithmValue={schualding_algorithms.SHORTEST_REMAING_FIRST} className="infoblock-label algorithm-option">shortest remaing first</div>
+            <div onClick={HandelAlgorithmOptionClick} algorithmValue={schualding_algorithms.MULTI_LEVEL_QUEUE} className="infoblock-label algorithm-option">multi level queue</div>
           </div>
         </div>
+        {getColorInfo()}
       </div>
       <div id="controls-container">
         <i onClick={HandelStartClick} id="play-control" className={`fas fa-${cpu_state === cpu_states.FREE ? 'play' : 'pause'}`}></i>

@@ -5,13 +5,17 @@ export const colors = {
     ROSE: "#d10050",
     HOVER_ROSE: "#e9206d",
     CYAN: "#00cee9",
-    GREEN: "#4bd84b"
+    GREEN: "#4bd84b",
+    HIGH: "#ff0000",
+    MID: "#ffee00",
+    LOW: "#11ff00"
 }
 
 export const schualding_algorithms = {
     ROUND_ROBIN: 0,
     SHORTEST_FIRST: 1,
-    SHORTEST_REMAING_FIRST: 2
+    SHORTEST_REMAING_FIRST: 2,
+    MULTI_LEVEL_QUEUE: 3
 }
 
 export const processing_states = {
