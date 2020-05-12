@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/RoundRobin/precache-manifest.73174cdd2368b37581685f3ffab63e4d.js"
+  "/RoundRobin/precache-manifest.d2b7cbbf722ca375e3f1b00202c8bc88.js"
 );
 
 self.addEventListener('message', (event) => {
